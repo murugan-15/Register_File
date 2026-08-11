@@ -3,8 +3,16 @@
 // File        : register_file.v
 // Author      : Ramasubbu Bala Murugan
 // Description :
-//   Parameterized single-port Register File with one synchronous write port
-//   and one synchronous read port.
+//   Parameterized single-port Register File 
+//
+// Features:
+//   - Synchronous write
+//   - Synchronous read
+//   - Configurable data width
+//   - Configurable address width
+//   - Complete address space: DEPTH = 2^ADDR_WIDTH
+//   - Read data holds its previous value when rd_en = 0
+//   - Memory contents are not reset
 //==============================================================================
 
 module register_file
