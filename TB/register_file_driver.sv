@@ -1,0 +1,180 @@
+class register_file_driver
+#(
+    parameter DATA_WIDTH = 8,
+    parameter ADDR_WIDTH = 4
+);
+
+    // Virtual interface
+    virtual register_file_if #(DATA_WIDTH, ADDR_WIDTH) vif;
+
+    // Constructor
+    function new(
+        virtual register_file_if #(DATA_WIDTH, ADDR_WIDTH) vif
+    );
+        this.vif = vif;
+    endfunction
+
+    //=========================================================
+    // Write Transaction
+    //=========================================================
+    task automatic write_data
+    (
+        input logic [ADDR_WIDTH-1:0] addr,
+        input logic [DATA_WIDTH-1:0] data
+    );
+    begin
+
+        // Drive before active clock edge
+        @(negedge vif.clk);
+
+        vif.wr_en   <= 1'b1;
+        vif.wr_addr <= addr;
+        vif.wr_data <= data;
+
+        // DUT accepts transaction
+        @(posedge vif.clk);
+
+        // Disable write controls
+        @(negedge vif.clk);
+
+        vif.wr_en   <= 1'b0;
+        vif.wr_addr <= '0;
+        vif.wr_data <= '0;
+
+        $display(
+            "[%0t] WRITE : Address = %0d Data = %0h",
+            $time,
+            addr,
+            data
+        );
+
+    end
+    endtask
+
+    //=========================================================
+    // Read Transaction
+    //=========================================================
+    task automatic read_data
+    (
+        input logic [ADDR_WIDTH-1:0] addr
+    );
+    begin
+
+        // Drive before active clock edge
+        @(negedge vif.clk);
+
+        vif.rd_en   <= 1'b1;
+        vif.rd_addr <= addr;
+
+        // DUT accepts read request
+        @(posedge vif.clk);
+
+        // Disable read controls
+        @(negedge vif.clk);
+
+        vif.rd_en   <= 1'b0;
+        vif.rd_addr <= '0;
+
+        $display(
+            "[%0t] READ  : Address = %0d",
+            $time,
+            addr
+        );
+
+    end
+    endtask
+
+    //=========================================================
+    // Simultaneous Read / Write
+    // Same Address
+    //=========================================================
+    task automatic simultaneous_read_write
+    (
+        input logic [ADDR_WIDTH-1:0] addr,
+        input logic [DATA_WIDTH-1:0] data
+    );
+    begin
+
+        // Drive both operations before active edge
+        @(negedge vif.clk);
+
+        vif.wr_en   <= 1'b1;
+        vif.wr_addr <= addr;
+        vif.wr_data <= data;
+
+        vif.rd_en   <= 1'b1;
+        vif.rd_addr <= addr;
+
+        // DUT accepts both transactions
+        @(posedge vif.clk);
+
+        // Disable controls
+        @(negedge vif.clk);
+
+        vif.wr_en   <= 1'b0;
+        vif.rd_en   <= 1'b0;
+
+        vif.wr_addr <= '0;
+        vif.rd_addr <= '0;
+        vif.wr_data <= '0;
+
+        $display(
+            "[%0t] SIMULTANEOUS R/W : Address = %0d Write Data = %0h",
+            $time,
+            addr,
+            data
+        );
+
+    end
+    endtask
+
+    //=========================================================
+    // Simultaneous Read / Write
+    // Different Addresses
+    //=========================================================
+    task automatic simultaneous_read_write_diff_addr
+    (
+        input logic [ADDR_WIDTH-1:0] rd_addr_i,
+        input logic [ADDR_WIDTH-1:0] wr_addr_i,
+        input logic [DATA_WIDTH-1:0] wr_data_i
+    );
+    begin
+
+        // Drive both operations before active edge
+        @(negedge vif.clk);
+
+        vif.wr_en   <= 1'b1;
+        vif.wr_addr <= wr_addr_i;
+        vif.wr_data <= wr_data_i;
+
+        vif.rd_en   <= 1'b1;
+        vif.rd_addr <= rd_addr_i;
+
+        // DUT accepts both transactions
+        @(posedge vif.clk);
+
+        // Disable controls
+        @(negedge vif.clk);
+
+        vif.wr_en   <= 1'b0;
+        vif.rd_en   <= 1'b0;
+
+        vif.wr_addr <= '0;
+        vif.rd_addr <= '0;
+        vif.wr_data <= '0;
+
+        $display(
+            "[%0t] SIMULTANEOUS R/W : "
+            "Read Addr = %0d "
+            "Write Addr = %0d "
+            "Write Data = %0h",
+            $time,
+            rd_addr_i,
+            wr_addr_i,
+            wr_data_i
+        );
+
+    end
+    endtask
+
+endclass
