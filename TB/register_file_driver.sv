@@ -75,9 +75,9 @@ class register_file_driver
     endtask
 
     //=========================================================
-    // Write Transaction
+    // Drive Write Transaction
     //=========================================================
-    task automatic write_data
+    task automatic drive_write
     (
         input logic [ADDR_WIDTH-1:0] addr,
         input logic [DATA_WIDTH-1:0] data
@@ -112,9 +112,9 @@ class register_file_driver
     endtask
 
     //=========================================================
-    // Read Transaction
+    // Drive Read Transaction
     //=========================================================
-    task automatic read_data
+    task automatic drive_read
     (
         input logic [ADDR_WIDTH-1:0] addr
     );
@@ -145,10 +145,10 @@ class register_file_driver
     endtask
 
     //=========================================================
-    // Simultaneous Read / Write
+    // Drive Simultaneous Read / Write
     // Same Address
     //=========================================================
-    task automatic simultaneous_read_write
+    task automatic drive_read_write_same
     (
         input logic [ADDR_WIDTH-1:0] addr,
         input logic [DATA_WIDTH-1:0] data
@@ -189,10 +189,10 @@ class register_file_driver
     endtask
 
     //=========================================================
-    // Simultaneous Read / Write
+    // Drive Simultaneous Read / Write
     // Different Addresses
     //=========================================================
-    task automatic simultaneous_read_write_diff_addr
+    task automatic drive_read_write_diff
     (
         input logic [ADDR_WIDTH-1:0] rd_addr_i,
         input logic [ADDR_WIDTH-1:0] wr_addr_i,
