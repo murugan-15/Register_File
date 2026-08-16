@@ -15,6 +15,66 @@ class register_file_driver
     endfunction
 
     //=========================================================
+    // Main Transaction Entry Point
+    //=========================================================
+
+    task automatic send
+    (
+        register_file_transaction tr
+    );
+
+        case (tr.operation)
+
+            register_file_transaction::OP_WRITE:
+            begin
+                drive_write(
+                    tr.write_addr,
+                    tr.write_data
+                );
+            end
+
+
+            register_file_transaction::OP_READ:
+            begin
+                drive_read(
+                    tr.read_addr
+                );
+            end
+
+
+            register_file_transaction::OP_READ_WRITE_SAME:
+            begin
+                drive_read_write_same(
+                    tr.write_addr,
+                    tr.write_data
+                );
+            end
+
+
+            register_file_transaction::OP_READ_WRITE_DIFF:
+            begin
+                drive_read_write_diff(
+                    tr.read_addr,
+                    tr.write_addr,
+                    tr.write_data
+                );
+            end
+
+
+            default:
+            begin
+                $error(
+                    "[%0t] DRIVER ERROR: "
+                    "Unsupported transaction type",
+                    $time
+                );
+            end
+
+        endcase
+
+    endtask
+
+    //=========================================================
     // Write Transaction
     //=========================================================
     task automatic write_data
